@@ -1,0 +1,74 @@
+# Ignore Jupyter notebook checkpoint directories
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+$
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+eggs/
+*.egg-info/
+pip-wheel-metadata/
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environments variables
+.env
+.env.*
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# SQLite database files
+*.sqlite3
+*.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# mypy
+.mypy_cache/
+
+# celery
+celerybeat-schedule
+
+# Jupyter checkpoints (already present but keep general)
+.ipynb_checkpoints/
+
+
+backend/models/*.pkl
+backend/models/*.joblib
+backend/models/*.npy
