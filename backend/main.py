@@ -67,14 +67,28 @@ def get_recommendation(req: RecommendationRequest):
     # Get top 5 matches
     movies_list = sorted(list(enumerate(mood_distances)), reverse=True, key=lambda x: x[1])[0:5]
 
-    # Format the response
+    # Format the response with all movie details
     recommendations = []
     for i in movies_list:
         movie_data = movies_df.iloc[i[0]]
+            
+            # Handle the overview (since we turned it into a list during data cleaning)
+        overview_text = movie_data['overview']
+        if isinstance(overview_text, list):
+            overview_text = " ".join(overview_text).capitalize()
+
         recommendations.append({
             "id": int(movie_data['id']),
             "title": movie_data['title'],
-            "match_score": float(round(i[1], 2))
-        })
+            "match_score": float(round(i[1], 2)),
+            "overview": overview_text,
+            "director": movie_data['director'],
+            "release_year": int(movie_data['release_year']) if pd.notna(movie_data['release_year']) else "Unknown",
+            "runtime": int(movie_data['runtime']) if pd.notna(movie_data['runtime']) else "?",
+            "original_language": movie_data['original_language'],
+            "genres": movie_data['genres'] # Sends the list of genres
+            })
+            
+        return {"recommendations": recommendations}
 
     return {"recommendations": recommendations}

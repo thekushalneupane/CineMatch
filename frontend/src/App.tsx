@@ -9,6 +9,7 @@ import { Filters, FiltersState } from './components/Filters';
 import { Result, MOVIES_COUNT } from './components/Result';
 import { AnimatePresence } from 'framer-motion';
 import { useScreenInit } from './useScreenInit';
+
 export function App() {
   const screenInit = useScreenInit();
   const [step, setStep] = useState<1 | 2 | 3>(
@@ -20,8 +21,13 @@ export function App() {
     length: 'medium',
     language: 'hollywood'
   });
+  
   const [isSurprise, setIsSurprise] = useState(false);
   const [surpriseIndex, setSurpriseIndex] = useState(0);
+
+  const [recommendation, setRecommendation] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleToggleMood = (id: string) => {
     setSelectedMoods((prev) => {
       if (prev.includes(id)) return prev.filter((m) => m !== id);
@@ -29,26 +35,63 @@ export function App() {
       return [...prev, id];
     });
   };
+
   const handleSetFilter = (key: keyof FiltersState, value: string) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value
     }));
   };
-  const handleNext = () => setStep((s) => Math.min(3, s + 1) as 1 | 2 | 3);
+
+  const fetchRecommendation = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mood: selectedMoods[0], 
+          era: filters.era,
+          length: filters.length,
+          language: filters.language
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch recommendation");
+
+      const data = await response.json();
+      setRecommendation(data.recommendations[0]); 
+      setStep(3); 
+    } catch (error) {
+      console.error("API Error:", error);
+      setStep(3); 
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNext = () => {
+    if (step === 1) setStep(2);
+    if (step === 2) fetchRecommendation(); 
+  };
+
   const handleBack = () => setStep((s) => Math.max(1, s - 1) as 1 | 2 | 3);
+  
   const handleReset = () => {
     setStep(1);
     setSelectedMoods([]);
     setIsSurprise(false);
     setSurpriseIndex(0);
+    setRecommendation(null);
   };
+
   const handleSurpriseMe = () => {
     const randomIndex = Math.floor(Math.random() * MOVIES_COUNT);
     setSurpriseIndex(randomIndex);
     setIsSurprise(true);
     setStep(3);
   };
+
   return (
     <BlushBackground>
       <Navbar onSurpriseMe={handleSurpriseMe} />
@@ -56,30 +99,40 @@ export function App() {
         <StepDots currentStep={step} />
 
         <AnimatePresence mode="wait">
-          {step === 1 &&
-          <MoodSelection
-            key="step1"
-            selectedMoods={selectedMoods}
-            onToggleMood={handleToggleMood} />
-
-          }
-          {step === 2 &&
-          <Filters
-            key="step2"
-            filters={filters}
-            setFilter={handleSetFilter} />
-
-          }
-          {step === 3 && <Result key="step3" onReset={handleReset} isSurprise={isSurprise} surpriseIndex={surpriseIndex} />}
+          {step === 1 && (
+            <MoodSelection
+              key="step1"
+              selectedMoods={selectedMoods}
+              onToggleMood={handleToggleMood} 
+            />
+          )}
+          {step === 2 && (
+            <Filters
+              key="step2"
+              filters={filters}
+              setFilter={handleSetFilter} 
+            />
+          )}
+          {step === 3 && (
+            <Result 
+              key="step3" 
+              onReset={handleReset} 
+              isSurprise={isSurprise} 
+              surpriseIndex={surpriseIndex}
+              movieData={recommendation} 
+            />
+          )}
         </AnimatePresence>
 
         <FooterButtons
           step={step}
           onBack={handleBack}
           onNext={handleNext}
-          nextDisabled={step === 1 && selectedMoods.length === 0} />
+          nextDisabled={step === 1 && selectedMoods.length === 0}
+          isLoading={isLoading} 
+        />
         
       </MainCard>
-    </BlushBackground>);
-
+    </BlushBackground>
+  );
 }
