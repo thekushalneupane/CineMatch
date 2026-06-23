@@ -25,7 +25,9 @@ export function App() {
   const [isSurprise, setIsSurprise] = useState(false);
   const [surpriseIndex, setSurpriseIndex] = useState(0);
 
-  const [recommendation, setRecommendation] = useState<any>(null);
+  // --- UPDATED STATE FOR SHUFFLE ---
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [recIndex, setRecIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleToggleMood = (id: string) => {
@@ -60,7 +62,10 @@ export function App() {
       if (!response.ok) throw new Error("Failed to fetch recommendation");
 
       const data = await response.json();
-      setRecommendation(data.recommendations[0]); 
+      
+      // Save all 5 recommendations and start at index 0
+      setRecommendations(data.recommendations); 
+      setRecIndex(0);
       setStep(3); 
     } catch (error) {
       console.error("API Error:", error);
@@ -82,31 +87,38 @@ export function App() {
     setSelectedMoods([]);
     setIsSurprise(false);
     setSurpriseIndex(0);
-    setRecommendation(null);
+    setRecommendations([]);
+    setRecIndex(0);
   };
 
   const handleSurpriseMe = async () => {
-    setIsLoading(true);
+    // Clear current data so the loading spinner shows up!
+    setRecommendations([]); 
+    setIsSurprise(true);
+    setStep(3); 
+
     try {
       const response = await fetch('http://127.0.0.1:8000/random');
       if (!response.ok) throw new Error("Failed to fetch surprise movie");
 
       const data = await response.json();
-      
-      // Save the random movie from the backend
-      setRecommendation(data.recommendations[0]); 
-      setIsSurprise(true); // This tells Result.tsx to show the "Surprise Pick" badge
-      setStep(3); 
+      setRecommendations(data.recommendations); 
+      setRecIndex(0);
       
     } catch (error) {
       console.error("API Error:", error);
-      // Fallback just in case the server is offline
       const randomIndex = Math.floor(Math.random() * MOVIES_COUNT);
       setSurpriseIndex(randomIndex);
-      setIsSurprise(true);
-      setStep(3);
-    } finally {
-      setIsLoading(false);
+    }
+  };
+
+  const handleShuffle = () => {
+    // If it's a surprise OR we only have 1 match from the backend, fetch a new one
+    if (isSurprise || recommendations.length <= 1) {
+      handleSurpriseMe();
+    } else {
+      // Otherwise, cycle to the next movie in your top 5
+      setRecIndex((prev) => (prev + 1) % recommendations.length);
     }
   };
 
@@ -137,7 +149,8 @@ export function App() {
               onReset={handleReset} 
               isSurprise={isSurprise} 
               surpriseIndex={surpriseIndex}
-              movieData={recommendation} 
+              movieData={recommendations[recIndex]} // Pass current movie from array
+              onShuffle={handleShuffle} // Pass shuffle function
             />
           )}
         </AnimatePresence>

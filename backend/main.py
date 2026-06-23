@@ -80,15 +80,17 @@ def get_recommendation(req: RecommendationRequest):
             overview_text = " ".join(overview_text).capitalize()
 
         recommendations.append({
-            "id": int(movie_data['id']),
-            "title": movie_data['title'],
-            "match_score": float(round(i[1], 2)),
-            "overview": overview_text,
-            "director": movie_data['director'],
-            "release_year": int(movie_data['release_year']) if pd.notna(movie_data['release_year']) else "Unknown",
-            "runtime": int(movie_data['runtime']) if pd.notna(movie_data['runtime']) else "?",
-            "original_language": movie_data['original_language'],
-            "genres": movie_data['genres'] # Sends the list of genres
+                "id": int(movie_data['id']),
+                "title": movie_data['title'],
+                "match_score": float(round(i[1], 2)) if 'i' in locals() else 100,
+                "overview": overview_text,
+                "director": movie_data['director'],
+                "release_year": int(movie_data['release_year']) if pd.notna(movie_data['release_year']) else "Unknown",
+                "runtime": int(movie_data['runtime']) if pd.notna(movie_data['runtime']) else "?",
+                "original_language": movie_data['original_language'],
+                "genres": movie_data['genres'],
+                "rating": round(movie_data['vote_average'], 1) if pd.notna(movie_data['vote_average']) else "N/A",
+                "cast": movie_data['cast'] if isinstance(movie_data['cast'], list) else []
             })
             
         return {"recommendations": recommendations}

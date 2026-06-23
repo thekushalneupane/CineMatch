@@ -55,14 +55,16 @@ const MOVIES: Movie[] = [
 
 export const MOVIES_COUNT = MOVIES.length;
 
+// Added onShuffle to props
 interface ResultProps {
   onReset: () => void;
   isSurprise?: boolean;
   surpriseIndex?: number;
   movieData?: any; 
+  onShuffle: () => void; 
 }
 
-export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieData }: ResultProps) {
+export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieData, onShuffle }: ResultProps) {
   const [index, setIndex] = useState(surpriseIndex);
   const [modalOpen, setModalOpen] = useState(false);
   
@@ -85,7 +87,8 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
   const runtime = movieData?.runtime ? `${movieData.runtime} min` : fallbackMovie.runtime;
   const language = movieData?.original_language ? String(movieData.original_language).toUpperCase() : fallbackMovie.language;
   const poster = 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&q=80'; // Keeps your aesthetic placeholder
-  const rating = 'N/A';
+  const rating = movieData?.rating || fallbackMovie.rating;
+  const castList = movieData?.cast || fallbackMovie.cast;
   const certificate = 'NR';
   const status = movieData?.match_score === 100 ? "Pure Chaos (100% Random)" : (movieData ? `Score: ${Math.round(movieData.match_score * 100)}% Match` : fallbackMovie.status);
   const moodMatch = isSurprise ? "A completely random pull from the CineMatch vault!" : "Calculated via Cosine Similarity based on your selected mood profile.";
@@ -93,8 +96,9 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
   const rawGenres = movieData ? movieData.genres : fallbackMovie.genre;
   const genre = Array.isArray(rawGenres) ? rawGenres.join(', ') : rawGenres;
 
+  // UPDATED SHUFFLE HANDLER
   const handleAnotherMovie = () => {
-    setIndex((i) => (i + 1) % MOVIES.length);
+    onShuffle();
     setModalOpen(false);
   };
 
@@ -207,21 +211,27 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
                 </div>
               </div>
 
-              {isSurprise && fallbackMovie.cast && (
+              {castList && castList.length > 0 && (
                 <div className="mt-7">
                   <h3 className="text-xs font-bold text-slate-400 tracking-widest mb-4">
                     STARRING
                   </h3>
                   <div className="flex flex-wrap gap-5">
-                    {fallbackMovie.cast.map((actor, i) => (
-                      <div key={i} className="flex flex-col items-center text-center">
-                        <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mb-2 border border-slate-200">
-                          <User className="w-6 h-6 text-slate-400" />
+                    {castList.slice(0, 4).map((actor: any, i: number) => {
+                      // Backend sends strings ("Brad Pitt"), Fallback sends objects ({name: "Brad", role: "..."})
+                      const actorName = typeof actor === 'string' ? actor : actor.name;
+                      const actorRole = typeof actor === 'string' ? 'Actor' : actor.role;
+                      
+                      return (
+                        <div key={i} className="flex flex-col items-center text-center max-w-[80px]">
+                          <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mb-2 border border-slate-200 shrink-0">
+                            <User className="w-6 h-6 text-slate-400" />
+                          </div>
+                          <span className="text-sm font-bold text-slate-900 leading-tight mb-0.5">{actorName}</span>
+                          <span className="text-xs text-slate-500 line-clamp-1">{actorRole}</span>
                         </div>
-                        <span className="text-sm font-bold text-slate-900">{actor.name}</span>
-                        <span className="text-xs text-slate-500">{actor.role}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
