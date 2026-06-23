@@ -1,3 +1,5 @@
+import random
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -92,3 +94,29 @@ def get_recommendation(req: RecommendationRequest):
         return {"recommendations": recommendations}
 
     return {"recommendations": recommendations}
+
+@app.get("/random")
+def get_random_movie():
+    # Pick a completely random index from the dataframe
+    random_idx = random.randint(0, len(movies_df) - 1)
+    movie_data = movies_df.iloc[random_idx]
+    
+    # Handle the overview formatting
+    overview_text = movie_data['overview']
+    if isinstance(overview_text, list):
+        overview_text = " ".join(overview_text).capitalize()
+
+    # Return it in the exact same format as the normal recommendations
+    return {
+        "recommendations": [{
+            "id": int(movie_data['id']),
+            "title": movie_data['title'],
+            "match_score": 100, # It's a surprise, so it's a 100% match!
+            "overview": overview_text,
+            "director": movie_data['director'],
+            "release_year": int(movie_data['release_year']) if pd.notna(movie_data['release_year']) else "Unknown",
+            "runtime": int(movie_data['runtime']) if pd.notna(movie_data['runtime']) else "?",
+            "original_language": movie_data['original_language'],
+            "genres": movie_data['genres']
+        }]
+    }

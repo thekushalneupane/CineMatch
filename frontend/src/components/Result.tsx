@@ -77,19 +77,20 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
     );
   }
 
-  const title = isSurprise ? fallbackMovie.title : movieData?.title;
-  const story = isSurprise ? fallbackMovie.story : movieData?.overview;
-  const director = isSurprise ? fallbackMovie.director : movieData?.director;
-  const year = isSurprise ? fallbackMovie.year : movieData?.release_year;
-  const runtime = isSurprise ? fallbackMovie.runtime : `${movieData?.runtime || '?'} min`;
-  const language = isSurprise ? fallbackMovie.language : (movieData?.original_language || 'English');
-  const poster = isSurprise ? fallbackMovie.poster : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&q=80';
-  const rating = isSurprise ? fallbackMovie.rating : 'N/A';
-  const certificate = isSurprise ? fallbackMovie.certificate : 'NR';
-  const status = isSurprise ? fallbackMovie.status : `Score: ${movieData?.match_score ? Math.round(movieData.match_score * 100) : 95}% Match`;
-  const moodMatch = isSurprise ? fallbackMovie.moodMatch : "Calculated via Cosine Similarity based on your selected mood profile.";
+  // Map data dynamically (Prioritize the real backend data!)
+  const title = movieData?.title || fallbackMovie.title;
+  const story = movieData?.overview || fallbackMovie.story;
+  const director = movieData?.director || fallbackMovie.director;
+  const year = movieData?.release_year || fallbackMovie.year;
+  const runtime = movieData?.runtime ? `${movieData.runtime} min` : fallbackMovie.runtime;
+  const language = movieData?.original_language ? String(movieData.original_language).toUpperCase() : fallbackMovie.language;
+  const poster = 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&q=80'; // Keeps your aesthetic placeholder
+  const rating = 'N/A';
+  const certificate = 'NR';
+  const status = movieData?.match_score === 100 ? "Pure Chaos (100% Random)" : (movieData ? `Score: ${Math.round(movieData.match_score * 100)}% Match` : fallbackMovie.status);
+  const moodMatch = isSurprise ? "A completely random pull from the CineMatch vault!" : "Calculated via Cosine Similarity based on your selected mood profile.";
   
-  const rawGenres = isSurprise ? fallbackMovie.genre : movieData?.genres;
+  const rawGenres = movieData ? movieData.genres : fallbackMovie.genre;
   const genre = Array.isArray(rawGenres) ? rawGenres.join(', ') : rawGenres;
 
   const handleAnotherMovie = () => {

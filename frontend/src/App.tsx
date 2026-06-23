@@ -85,11 +85,29 @@ export function App() {
     setRecommendation(null);
   };
 
-  const handleSurpriseMe = () => {
-    const randomIndex = Math.floor(Math.random() * MOVIES_COUNT);
-    setSurpriseIndex(randomIndex);
-    setIsSurprise(true);
-    setStep(3);
+  const handleSurpriseMe = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/random');
+      if (!response.ok) throw new Error("Failed to fetch surprise movie");
+
+      const data = await response.json();
+      
+      // Save the random movie from the backend
+      setRecommendation(data.recommendations[0]); 
+      setIsSurprise(true); // This tells Result.tsx to show the "Surprise Pick" badge
+      setStep(3); 
+      
+    } catch (error) {
+      console.error("API Error:", error);
+      // Fallback just in case the server is offline
+      const randomIndex = Math.floor(Math.random() * MOVIES_COUNT);
+      setSurpriseIndex(randomIndex);
+      setIsSurprise(true);
+      setStep(3);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
