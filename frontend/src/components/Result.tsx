@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Play, Bookmark, User, RotateCcw, Share2, MoreVertical,
+  Play, Bookmark, User, RotateCcw, Share2,
   Shuffle, SlidersHorizontal, ChevronRight
 } from 'lucide-react';
 
@@ -178,9 +178,6 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
                 <div className="items-center gap-2 text-slate-400 hidden sm:flex">
                   <button className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                     <Share2 className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                    <MoreVertical className="w-5 h-5" />
                   </button>
                 </div>
               </div>
