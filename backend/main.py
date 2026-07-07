@@ -66,14 +66,48 @@ def get_recommendation(req: RecommendationRequest):
     mood_vector = cv.transform([seed_text]).toarray()
     mood_distances = cosine_similarity(mood_vector, vectors)[0]
 
-    # Get top 5 matches
-    movies_list = sorted(list(enumerate(mood_distances)), reverse=True, key=lambda x: x[1])[0:5]
+    # Attach scores to the dataframe and start filtering
+    movies_df['score'] = mood_distances
+    filtered = movies_df.copy()
+
+    # Era filter (values are the short IDs sent by the frontend)
+    if req.era == "classic":
+        filtered = filtered[filtered['release_year'] < 1990]
+    elif req.era == "2000s":
+        filtered = filtered[(filtered['release_year'] >= 1990) &
+                            (filtered['release_year'] < 2015)]
+    elif req.era == "recent":
+        filtered = filtered[filtered['release_year'] >= 2015]
+
+    # Length filter
+    if req.length == "short":
+        filtered = filtered[filtered['runtime'] < 90]
+    elif req.length == "medium":
+        filtered = filtered[(filtered['runtime'] >= 90) &
+                            (filtered['runtime'] <= 120)]
+    elif req.length == "epic":
+        filtered = filtered[filtered['runtime'] > 120]
+
+    # Language filter
+    if req.language == "hollywood":
+        filtered = filtered[filtered['original_language'] == 'en']
+    elif req.language == "foreign":
+        filtered = filtered[filtered['original_language'] != 'en']
+    # "any" — no filter applied
+
+    # Guard: return a clear error if the filter combo yields nothing
+    if filtered.empty:
+        raise HTTPException(
+            status_code=404,
+            detail="No movies found for this combination. Try different filters."
+        )
+
+    # Pick top 5 from the filtered results ranked by mood score
+    movies_list = filtered.nlargest(5, 'score')
 
     # Format the response with all movie details
     recommendations = []
-    for i in movies_list:
-        movie_data = movies_df.iloc[i[0]]
-
+    for _, movie_data in movies_list.iterrows():
         # Handle the overview (since we turned it into a list during data cleaning)
         overview_text = movie_data['overview']
         if isinstance(overview_text, list):
@@ -82,7 +116,7 @@ def get_recommendation(req: RecommendationRequest):
         recommendations.append({
             "id": int(movie_data['id']),
             "title": movie_data['title'],
-            "match_score": float(round(i[1], 2)),
+            "match_score": float(round(movie_data['score'], 2)),
             "overview": overview_text,
             "director": movie_data['director'],
             "release_year": int(movie_data['release_year']) if pd.notna(movie_data['release_year']) else "Unknown",
