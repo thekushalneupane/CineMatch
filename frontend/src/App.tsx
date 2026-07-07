@@ -124,7 +124,7 @@ export function App() {
 
   return (
     <BlushBackground>
-      <Navbar onSurpriseMe={handleSurpriseMe} />
+      <Navbar onSurpriseMe={handleSurpriseMe} onLogoClick={handleReset} />
       <MainCard>
         <StepDots currentStep={step} />
 
