@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Play, Bookmark, User, RotateCcw, Share2,
+  User, RotateCcw, Share2,
   Shuffle, SlidersHorizontal, ChevronRight
 } from 'lucide-react';
 
@@ -137,14 +137,6 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
               
             </motion.div>
           </AnimatePresence>
-          <button className="w-full bg-crimson hover:bg-[#be123c] text-white rounded-xl py-3.5 font-medium flex items-center justify-center gap-2 shadow-md shadow-crimson/20 transition-colors">
-            <Play className="w-5 h-5 fill-current" />
-            Watch Trailer
-          </button>
-          <button className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl py-3.5 font-medium flex items-center justify-center gap-2 transition-colors">
-            <Bookmark className="w-5 h-5" />
-            Add to Watchlist
-          </button>
         </div>
 
         <div className="flex flex-col min-w-0">
