@@ -91,6 +91,7 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
   const castList = movieData?.cast || fallbackMovie.cast;
   const certificate = 'NR';
   const status = movieData?.match_score === 100 ? "Pure Chaos (100% Random)" : (movieData ? `Score: ${Math.round(movieData.match_score * 100)}% Match` : fallbackMovie.status);
+  const matchScore = movieData ? Math.round(movieData.match_score * 100) : null;
   const moodMatch = isSurprise ? "A completely random pull from the CineMatch vault!" : "Calculated via Cosine Similarity based on your selected mood profile.";
   
   const rawGenres = movieData ? movieData.genres : fallbackMovie.genre;
@@ -137,6 +138,13 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
               
             </motion.div>
           </AnimatePresence>
+          {matchScore !== null && (
+            <div className="mt-4 flex flex-col items-center gap-0.5 text-center">
+              <p className="text-xs font-bold text-slate-400 tracking-widest uppercase">Mood Match</p>
+              <p className="text-3xl font-bold text-crimson leading-tight">{matchScore}%</p>
+              <p className="text-xs text-slate-400">based on your mood profile</p>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col min-w-0">
@@ -229,14 +237,14 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
         </div>
 
         <div className="flex flex-col gap-5">
-          <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+          <div className="bg-slate-50 rounded-2xl px-5 pt-5 pb-1 border border-slate-100">
             <h3 className="text-xs font-bold text-slate-900 tracking-widest mb-4">
               DETAILS
             </h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between border-b border-slate-200/60 pb-3">
                 <span className="text-slate-500">Genre</span>
-                <span className="font-semibold text-slate-900 text-right max-w-[120px] truncate">
+                <span className="font-semibold text-slate-900 text-right ">
                   {genre}
                 </span>
               </div>
@@ -246,15 +254,11 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
                   {isSurprise ? fallbackMovie.studio : "Various"}
                 </span>
               </div>
-              <div className="flex justify-between border-b border-slate-200/60 pb-3">
+              <div className="flex justify-between pb-3">
                 <span className="text-slate-500">Language</span>
                 <span className="font-semibold text-slate-900">
                   {language}
                 </span>
-              </div>
-              <div className="flex justify-between pb-1">
-                <span className="text-slate-500">Status</span>
-                <span className="font-bold text-crimson">{status}</span>
               </div>
             </div>
           </div>
