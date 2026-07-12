@@ -55,6 +55,17 @@ const MOVIES: Movie[] = [
 
 export const MOVIES_COUNT = MOVIES.length;
 
+const MOOD_QUOTES: Record<string, string> = {
+  "Want to cry": "Perfect for when you need a good emotional release.",
+  "Need to laugh": "Guaranteed to lift your mood and keep you smiling.",
+  "Edge of my seat": "Buckle up — this one doesn't let you breathe.",
+  "Turn my brain off": "Pure fun. No thinking required.",
+  "Feel inspired": "A story that'll stay with you long after it ends.",
+  "Get scared": "Don't watch this one alone.",
+  "Fall in love": "Cozy, warm, and just the right amount of romantic.",
+  "Go on a journey": "An escape to another world entirely."
+};
+
 // Added onShuffle to props
 interface ResultProps {
   onReset: () => void;
@@ -62,9 +73,10 @@ interface ResultProps {
   surpriseIndex?: number;
   movieData?: any; 
   onShuffle: () => void; 
+  mood?: string;
 }
 
-export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieData, onShuffle }: ResultProps) {
+export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieData, onShuffle, mood }: ResultProps) {
   const [index, setIndex] = useState(surpriseIndex);
   const [modalOpen, setModalOpen] = useState(false);
   
@@ -92,7 +104,7 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
   const certificate = 'NR';
   const status = movieData?.match_score === 100 ? "Pure Chaos (100% Random)" : (movieData ? `Score: ${Math.round(movieData.match_score * 100)}% Match` : fallbackMovie.status);
   const matchScore = movieData ? Math.round(movieData.match_score * 100) : null;
-  const moodMatch = isSurprise ? "A completely random pull from the CineMatch vault!" : "Calculated via Cosine Similarity based on your selected mood profile.";
+  const moodMatch = isSurprise ? "A completely random pull from the CineMatch vault!" : (mood && MOOD_QUOTES[mood] ? MOOD_QUOTES[mood] : "Picked just for your taste tonight.");
   
   const rawGenres = movieData ? movieData.genres : fallbackMovie.genre;
   const genre = Array.isArray(rawGenres) ? rawGenres.join(', ') : rawGenres;

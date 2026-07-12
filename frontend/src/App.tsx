@@ -149,8 +149,9 @@ export function App() {
               onReset={handleReset} 
               isSurprise={isSurprise} 
               surpriseIndex={surpriseIndex}
-              movieData={recommendations[recIndex]} // Pass current movie from array
-              onShuffle={handleShuffle} // Pass shuffle function
+              movieData={recommendations[recIndex]}
+              onShuffle={handleShuffle}
+              mood={selectedMoods[0]}
             />
           )}
         </AnimatePresence>

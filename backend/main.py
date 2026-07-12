@@ -1,11 +1,15 @@
 import random
 
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, HTTPException
+# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
+# pyrefly: ignore [missing-import]
 from pydantic import BaseModel
 import pickle
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
+# pyrefly: ignore [missing-import]
 from nltk.stem.porter import PorterStemmer
 
 app = FastAPI()
