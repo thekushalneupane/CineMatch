@@ -225,18 +225,19 @@ export function Result({ onReset, isSurprise = false, surpriseIndex = 0, movieDa
                   <h3 className="text-xs font-bold text-slate-400 tracking-widest mb-4">
                     STARRING
                   </h3>
-                  <div className="flex flex-wrap gap-5">
+                  <div className="grid grid-cols-4 gap-2">
                     {castList.slice(0, 4).map((actor: any, i: number) => {
                       // Backend sends strings ("Brad Pitt"), Fallback sends objects ({name: "Brad", role: "..."})
                       const actorName = typeof actor === 'string' ? actor : actor.name;
                       const actorRole = typeof actor === 'string' ? 'Actor' : actor.role;
+                      const formattedName = actorName.replace(/([a-z])([A-Z])/g, '$1 $2');
                       
                       return (
-                        <div key={i} className="flex flex-col items-center text-center max-w-[80px]">
+                        <div key={i} className="flex flex-col items-center text-center min-w-0">
                           <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mb-2 border border-slate-200 shrink-0">
                             <User className="w-6 h-6 text-slate-400" />
                           </div>
-                          <span className="text-sm font-bold text-slate-900 leading-tight mb-0.5">{actorName}</span>
+                          <span className="text-xs font-bold text-slate-900 leading-tight mb-0.5 break-words w-full text-center">{formattedName}</span>
                           <span className="text-xs text-slate-500 line-clamp-1">{actorRole}</span>
                         </div>
                       );
